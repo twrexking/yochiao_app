@@ -329,7 +329,7 @@ class NavigationManager {
             if (loaderElement) {
                 loaderElement.remove();
             }
-        }, 100);
+        }, 50);
     }
 
     // 靜態方法，可在任何頁面調用
@@ -469,7 +469,7 @@ document.addEventListener('DOMContentLoaded', function() {
         if (pageBreadcrumbs[currentPage]) {
             NavigationManager.updateBreadcrumb(pageBreadcrumbs[currentPage]);
         }
-    }, 100);
+    }, 50);
 });
 
 // 全域導航實例
