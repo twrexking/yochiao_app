@@ -1,0 +1,531 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>友喬環境監測系統 - 資料庫管理</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    
+    <div class="container">
+        <div class="page">
+            <h2>資料庫管理</h2>
+            
+            <div class="tabs">
+                <div class="tab active" onclick="Database.switchDbTab(event, 'chemicals')">化學品資料庫</div>
+                <div class="tab" onclick="Database.switchDbTab(event, 'standards')">法規標準</div>
+                <div class="tab" onclick="Database.switchDbTab(event, 'instruments')">儀器管理</div>
+                <div class="tab" onclick="Database.switchDbTab(event, 'templates')">計畫書模板</div>
+            </div>
+            
+            <!-- 化學品資料庫 -->
+            <div id="chemicals" class="tab-content active">
+                <div class="toolbar">
+                    <h3>化學品資料庫</h3>
+                    <div class="search-bar">
+                        <input type="text" id="chemicalSearch" placeholder="搜尋化學品名稱或CAS" onkeyup="Database.searchChemicals()">
+                        <button class="btn" onclick="Database.searchChemicals()">搜尋</button>
+                        <button class="btn btn-primary" onclick="Common.showModal('addChemical')">新增化學品</button>
+                    </div>
+                </div>
+                
+                <table class="table" id="chemicalsTable">
+                    <thead>
+                        <tr>
+                            <th>化學品名稱</th>
+                            <th>CAS No.</th>
+                            <th>分子式</th>
+                            <th>TWA</th>
+                            <th>STEL</th>
+                            <th>Ceiling</th>
+                            <th>採樣介質種類</th>
+                            <th>操作</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>甲醇</td>
+                            <td>50-00-0</td>
+                            <td>CH2O</td>
+                            <td>0.75 ppm</td>
+                            <td>2 ppm</td>
+                            <td>-</td>
+                            <td>矽膠管</td>
+                            <td>
+                                <button class="btn" onclick="Database.editChemical('50-00-0')">編輯</button>
+                                <button class="btn" onclick="Database.deleteChemical('50-00-0')">刪除</button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>二氯甲烷</td>
+                            <td>124-38-9</td>
+                            <td>CO2</td>
+                            <td>5000 ppm</td>
+                            <td>30000 ppm</td>
+                            <td>-</td>
+                            <td>活性碳管(二支串聯)</td>
+                            <td>
+                                <button class="btn" onclick="Database.editChemical('124-38-9')">編輯</button>
+                                <button class="btn" onclick="Database.deleteChemical('124-38-9')">刪除</button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>酚</td>
+                            <td>630-08-0</td>
+                            <td>CO</td>
+                            <td>25 ppm</td>
+                            <td>200 ppm</td>
+                            <td>-</td>
+                            <td>XAD-7</td>
+                            <td>
+                                <button class="btn" onclick="Database.editChemical('630-08-0')">編輯</button>
+                                <button class="btn" onclick="Database.deleteChemical('630-08-0')">刪除</button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            
+            <!-- 法規標準 -->
+            <div id="standards" class="tab-content">
+                <div class="toolbar">
+                    <h3>法規標準維護</h3>
+                    <div class="search-bar">
+                        <select id="standardCategory">
+                            <option value="">所有類別</option>
+                            <option value="室內空氣品質">室內空氣品質</option>
+                            <option value="作業環境">作業環境</option>
+                            <option value="環境品質">環境品質</option>
+                        </select>
+                        <button class="btn btn-primary" onclick="Database.updateStandards()">更新標準</button>
+                        <button class="btn" onclick="Database.exportStandards()">匯出標準</button>
+                    </div>
+                </div>
+                
+                <table class="table" id="standardsTable">
+                    <thead>
+                        <tr>
+                            <th>法規類別</th>
+                            <th>污染物</th>
+                            <th>標準值</th>
+                            <th>單位</th>
+                            <th>平均時間</th>
+                            <th>法規依據</th>
+                            <th>生效日期</th>
+                            <th>操作</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>室內空氣品質</td>
+                            <td>甲醇</td>
+                            <td>0.08</td>
+                            <td>ppm</td>
+                            <td>1小時</td>
+                            <td>室內空氣品質管理法</td>
+                            <td>2012/11/23</td>
+                            <td>
+                                <button class="btn" onclick="Database.editStandard('iaq_hcho')">編輯</button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>室內空氣品質</td>
+                            <td>二氯甲烷</td>
+                            <td>1000</td>
+                            <td>ppm</td>
+                            <td>8小時</td>
+                            <td>室內空氣品質管理法</td>
+                            <td>2012/11/23</td>
+                            <td>
+                                <button class="btn" onclick="Database.editStandard('iaq_co2')">編輯</button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>作業環境</td>
+                            <td>酚</td>
+                            <td>0.75</td>
+                            <td>ppm</td>
+                            <td>8小時</td>
+                            <td>勞工作業環境空氣中有害物容許濃度標準</td>
+                            <td>2014/06/25</td>
+                            <td>
+                                <button class="btn" onclick="Database.editStandard('oel_hcho')">編輯</button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            
+            <!-- 儀器管理 -->
+            <div id="instruments" class="tab-content">
+                <div class="toolbar">
+                    <h3>儀器管理</h3>
+                    <div class="search-bar">
+                        <select id="instrumentStatus">
+                            <option value="">所有狀態</option>
+                            <option value="可用">可用</option>
+                            <option value="維修中">維修中</option>
+                            <option value="校正中">校正中</option>
+                            <option value="停用">停用</option>
+                        </select>
+                        <button class="btn btn-primary" onclick="Common.showModal('addInstrument')">新增儀器</button>
+                        <button class="btn" onclick="Database.generateCalibrationSchedule()">校正排程</button>
+                    </div>
+                </div>
+                
+                <table class="table" id="instrumentsTable">
+                    <thead>
+                        <tr>
+                            <th>儀器編號</th>
+                            <th>儀器型號</th>
+                            <th>製造商</th>
+                            <th>購入日期</th>
+                            <th>校正日期</th>
+                            <th>下次校正</th>
+                            <th>狀態</th>
+                            <th>操作</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr data-status="可用">
+                            <td>TSI-7515</td>
+                            <td>Q-Trak 7515</td>
+                            <td>TSI</td>
+                            <td>2023/01/15</td>
+                            <td>2024/12/15</td>
+                            <td>2025/06/15</td>
+                            <td><span class="status-badge">可用</span></td>
+                            <td>
+                                <button class="btn" onclick="Database.showInstrumentDetail('TSI-7515')">詳情</button>
+                                <button class="btn" onclick="Database.scheduleCalibration('TSI-7515')">校正</button>
+                            </td>
+                        </tr>
+                        <tr data-status="校正中">
+                            <td>TSI-7525</td>
+                            <td>Q-Trak 7525</td>
+                            <td>TSI</td>
+                            <td>2023/03/20</td>
+                            <td>2024/11/20</td>
+                            <td>2025/05/20</td>
+                            <td><span class="status-badge">校正中</span></td>
+                            <td>
+                                <button class="btn" onclick="Database.showInstrumentDetail('TSI-7525')">詳情</button>
+                                <button class="btn" onclick="Database.scheduleCalibration('TSI-7525')">校正</button>
+                            </td>
+                        </tr>
+                        <tr data-status="可用">
+                            <td>DustTrak-8533</td>
+                            <td>DustTrak II 8533</td>
+                            <td>TSI</td>
+                            <td>2022/08/10</td>
+                            <td>2024/10/10</td>
+                            <td>2025/04/10</td>
+                            <td><span class="status-badge">可用</span></td>
+                            <td>
+                                <button class="btn" onclick="Database.showInstrumentDetail('DustTrak-8533')">詳情</button>
+                                <button class="btn" onclick="Database.scheduleCalibration('DustTrak-8533')">校正</button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            
+            <!-- 計畫書模板 -->
+            <div id="templates" class="tab-content">
+                <div class="toolbar">
+                    <h3>計畫書模板管理</h3>
+                    <button class="btn btn-primary" onclick="Database.uploadTemplate()">上傳新模板</button>
+                    <button class="btn" onclick="Database.exportTemplates()">匯出模板</button>
+                </div>
+                
+                <div class="dashboard-grid">
+                    <div class="card">
+                        <h4>標準環境監測計畫書 v2.1</h4>
+                        <p><strong>類型：</strong>室內空氣品質監測</p>
+                        <p><strong>建立日期：</strong>2024/01/15</p>
+                        <p><strong>最後修改：</strong>2024/03/10</p>
+                        <p><strong>使用次數：</strong>45</p>
+                        <div style="margin-top: 15px;">
+                            <button class="btn" onclick="Database.previewTemplate('standard_v21')">預覽</button>
+                            <button class="btn" onclick="Database.editTemplate('standard_v21')">編輯</button>
+                            <button class="btn" onclick="Database.downloadTemplate('standard_v21')">下載</button>
+                        </div>
+                    </div>
+                    
+                    <div class="card">
+                        <h4>特殊作業環境監測計畫書 v1.5</h4>
+                        <p><strong>類型：</strong>作業環境監測</p>
+                        <p><strong>建立日期：</strong>2023/11/20</p>
+                        <p><strong>最後修改：</strong>2024/02/28</p>
+                        <p><strong>使用次數：</strong>23</p>
+                        <div style="margin-top: 15px;">
+                            <button class="btn" onclick="Database.previewTemplate('special_v15')">預覽</button>
+                            <button class="btn" onclick="Database.editTemplate('special_v15')">編輯</button>
+                            <button class="btn" onclick="Database.downloadTemplate('special_v15')">下載</button>
+                        </div>
+                    </div>
+                    
+                    <div class="card">
+                        <h4>環境影響評估計畫書 v3.0</h4>
+                        <p><strong>類型：</strong>環境影響評估</p>
+                        <p><strong>建立日期：</strong>2024/02/01</p>
+                        <p><strong>最後修改：</strong>2024/03/15</p>
+                        <p><strong>使用次數：</strong>12</p>
+                        <div style="margin-top: 15px;">
+                            <button class="btn" onclick="Database.previewTemplate('eia_v30')">預覽</button>
+                            <button class="btn" onclick="Database.editTemplate('eia_v30')">編輯</button>
+                            <button class="btn" onclick="Database.downloadTemplate('eia_v30')">下載</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 新增化學品模態框 -->
+    <div id="addChemicalModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>新增化學品</h2>
+            </div>
+            
+            <form id="chemicalForm">
+                <div class="form-group">
+                    <label>化學品名稱</label>
+                    <input type="text" name="chemicalName" required>
+                </div>
+                
+                <div class="grid-2col">
+                    <div class="form-group">
+                        <label>CAS No.</label>
+                        <input type="text" name="casNumber" pattern="[0-9]{2,7}-[0-9]{2}-[0-9]" placeholder="例：50-00-0" required>
+                    </div>
+                    <div class="form-group">
+                        <label>分子式</label>
+                        <input type="text" name="molecularFormula" required>
+                    </div>
+                </div>
+                
+                <h4>容許濃度標準</h4>
+                <div class="grid-2col">
+                    <div class="form-group">
+                        <label>TWA (8小時平均)</label>
+                        <input type="text" name="twa" placeholder="ppm 或 mg/m³">
+                    </div>
+                    <div class="form-group">
+                        <label>STEL (短時間暴露)</label>
+                        <input type="text" name="stel" placeholder="ppm 或 mg/m³">
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label>Ceiling (最高容許濃度)</label>
+                    <input type="text" name="ceiling" placeholder="ppm 或 mg/m³">
+                </div>
+                
+                <div class="form-group">
+                    <label>採樣方法</label>
+                    <select name="samplingMethod">
+                        <option>NIOSH 2016</option>
+                        <option>NIOSH 2541</option>
+                        <option>OSHA ID-205</option>
+                        <option>直讀式</option>
+                        <option>其他</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label>物理性質</label>
+                    <textarea name="physicalProperties" placeholder="外觀、氣味、溶解度等"></textarea>
+                </div>
+                
+                <div class="form-group">
+                    <label>健康危害</label>
+                    <textarea name="healthHazards" placeholder="急性及慢性健康危害說明"></textarea>
+                </div>
+            </form>
+            
+            <div class="modal-footer">
+                <button class="btn" onclick="Common.closeModal()">取消</button>
+                <button class="btn btn-primary" onclick="Database.saveChemical()">儲存</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 新增儀器模態框 -->
+    <div id="addInstrumentModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>新增儀器</h2>
+            </div>
+            
+            <form id="instrumentForm">
+                <div class="form-group">
+                    <label>儀器編號</label>
+                    <input type="text" name="instrumentId" required>
+                </div>
+                
+                <div class="grid-2col">
+                    <div class="form-group">
+                        <label>儀器型號</label>
+                        <input type="text" name="model" required>
+                    </div>
+                    <div class="form-group">
+                        <label>製造商</label>
+                        <input type="text" name="manufacturer" required>
+                    </div>
+                </div>
+                
+                <div class="grid-2col">
+                    <div class="form-group">
+                        <label>序號</label>
+                        <input type="text" name="serialNumber">
+                    </div>
+                    <div class="form-group">
+                        <label>購入日期</label>
+                        <input type="date" name="purchaseDate" required>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label>適用項目</label>
+                    <select name="applicableItems" multiple size="5">
+                        <option value="甲醛">甲醛</option>
+                        <option value="CO">一氧化碳</option>
+                        <option value="CO2">二氧化碳</option>
+                        <option value="TVOC">總揮發性有機化合物</option>
+                        <option value="PM10">懸浮微粒</option>
+                        <option value="PM2.5">細懸浮微粒</option>
+                        <option value="溫濕度">溫濕度</option>
+                    </select>
+                    <small>按住Ctrl可多選</small>
+                </div>
+                
+                <div class="grid-2col">
+                    <div class="form-group">
+                        <label>校正週期 (月)</label>
+                        <input type="number" name="calibrationInterval" value="6" min="1" required>
+                    </div>
+                    <div class="form-group">
+                        <label>初始狀態</label>
+                        <select name="status">
+                            <option value="可用">可用</option>
+                            <option value="待校正">待校正</option>
+                            <option value="維修中">維修中</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label>備註</label>
+                    <textarea name="notes" placeholder="儀器特殊說明或注意事項"></textarea>
+                </div>
+            </form>
+            
+            <div class="modal-footer">
+                <button class="btn" onclick="Common.closeModal()">取消</button>
+                <button class="btn btn-primary" onclick="Database.saveInstrument()">儲存</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 儀器詳情模態框 -->
+    <div id="instrumentDetailModal" class="modal">
+        <div class="modal-content" style="max-width: 1000px;">
+            <div class="modal-header">
+                <h2 id="instrumentDetailTitle">儀器詳細資訊</h2>
+            </div>
+            
+            <div class="tabs">
+                <div class="tab active" onclick="Common.switchTab(event, 'instrumentInfo', '#instrumentDetailModal')">基本資料</div>
+                <div class="tab" onclick="Common.switchTab(event, 'calibrationHistory', '#instrumentDetailModal')">校正記錄</div>
+                <div class="tab" onclick="Common.switchTab(event, 'maintenanceHistory', '#instrumentDetailModal')">維護記錄</div>
+                <div class="tab" onclick="Common.switchTab(event, 'usageHistory', '#instrumentDetailModal')">使用記錄</div>
+            </div>
+            
+            <div id="instrumentInfo" class="tab-content active">
+                <div class="grid-2col">
+                    <div>
+                        <p><strong>儀器編號：</strong><span id="detailInstrumentId"></span></p>
+                        <p><strong>儀器型號：</strong><span id="detailModel"></span></p>
+                        <p><strong>製造商：</strong><span id="detailManufacturer"></span></p>
+                        <p><strong>序號：</strong><span id="detailSerialNumber"></span></p>
+                    </div>
+                    <div>
+                        <p><strong>購入日期：</strong><span id="detailPurchaseDate"></span></p>
+                        <p><strong>校正週期：</strong><span id="detailCalibrationInterval"></span></p>
+                        <p><strong>目前狀態：</strong><span id="detailStatus"></span></p>
+                        <p><strong>適用項目：</strong><span id="detailApplicableItems"></span></p>
+                    </div>
+                </div>
+            </div>
+            
+            <div id="calibrationHistory" class="tab-content">
+                <h3>校正記錄</h3>
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>校正日期</th>
+                            <th>校正人員</th>
+                            <th>校正結果</th>
+                            <th>有效期限</th>
+                            <th>備註</th>
+                        </tr>
+                    </thead>
+                    <tbody id="calibrationHistoryTable">
+                        <!-- 動態載入 -->
+                    </tbody>
+                </table>
+            </div>
+            
+            <div id="maintenanceHistory" class="tab-content">
+                <h3>維護記錄</h3>
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>維護日期</th>
+                            <th>維護類型</th>
+                            <th>維護內容</th>
+                            <th>維護人員</th>
+                            <th>費用</th>
+                        </tr>
+                    </thead>
+                    <tbody id="maintenanceHistoryTable">
+                        <!-- 動態載入 -->
+                    </tbody>
+                </table>
+            </div>
+            
+            <div id="usageHistory" class="tab-content">
+                <h3>使用記錄</h3>
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>使用日期</th>
+                            <th>專案名稱</th>
+                            <th>使用人員</th>
+                            <th>使用時間</th>
+                            <th>備註</th>
+                        </tr>
+                    </thead>
+                    <tbody id="usageHistoryTable">
+                        <!-- 動態載入 -->
+                    </tbody>
+                </table>
+            </div>
+            
+            <div class="modal-footer">
+                <button class="btn" onclick="Common.closeModal()">關閉</button>
+                <button class="btn" onclick="Database.editInstrument()">編輯儀器</button>
+                <button class="btn btn-primary" onclick="Database.scheduleCalibration()">安排校正</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 導航系統 -->
+    <script src="navigation.js"></script>
+    <script src="common.js"></script>
+    <script src="database.js"></script>
+</body>
+</html>

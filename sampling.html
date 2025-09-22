@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>友喬環境監測系統 - 現場採樣</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    
+    <div class="container">
+        <div class="page">
+            <h2>現場採樣作業</h2>
+            
+            <div class="form-group">
+                <label>選擇專案</label>
+                <select id="projectSelect" onchange="Sampling.loadSamplingPoints()">
+                    <option value="">請選擇專案</option>
+                    <!-- 動態載入專案資料 -->
+                </select>
+            </div>
+            
+            <div id="samplingDetail" style="display: none;">
+                <div class="tabs">
+                    <div class="tab active" onclick="Common.switchTab(event, 'points', '#samplingDetail')">監測點位</div>
+                    <div class="tab" onclick="Common.switchTab(event, 'form', '#samplingDetail')">採樣表單</div>
+                    <div class="tab" onclick="Common.switchTab(event, 'review', '#samplingDetail')">資料檢視</div>
+                </div>
+                
+                <div id="points" class="tab-content active">
+                    <h3>選擇監測點位</h3>
+                    <div class="points-grid" id="pointsGrid">
+                        <!-- 動態載入監測點位 -->
+                    </div>
+                    <button class="btn btn-primary" onclick="Sampling.startSampling()" id="startSamplingBtn" disabled>開始採樣</button>
+                </div>
+                
+                <div id="form" class="tab-content">
+                    <h3 id="currentPointTitle">採樣記錄</h3>
+                    
+                    <div class="sampling-form">
+                        <h4>基本資訊</h4>
+                        <div class="grid-2col">
+                            <div class="form-group">
+                                <label>採樣日期</label>
+                                <input type="date" id="samplingDate" value="">
+                            </div>
+                            <div class="form-group">
+                                <label>採樣人員</label>
+                                <select id="samplingStaff">
+                                    <option>張技師</option>
+                                    <option>李技師</option>
+                                    <option>王技師</option>
+                                    <option>陳技師</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label>天氣狀況</label>
+                                <select id="weatherCondition">
+                                    <option>晴</option>
+                                    <option>多雲</option>
+                                    <option>陰</option>
+                                    <option>雨</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label>溫度 (°C)</label>
+                                <input type="number" id="temperature" step="0.1" placeholder="環境溫度">
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div id="monitoringItemsForm">
+                        <!-- 動態載入監測項目表單 -->
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>備註</label>
+                        <textarea id="samplingNotes" placeholder="特殊狀況記錄、環境描述等"></textarea>
+                    </div>
+                    
+                    <div>
+                        <button class="btn" onclick="Sampling.saveDraft()">暫存</button>
+                        <button class="btn btn-primary" onclick="Sampling.completePoint()">完成此點位</button>
+                        <button class="btn" onclick="Sampling.prevPoint()">上一個點位</button>
+                        <button class="btn" onclick="Sampling.nextPoint()">下一個點位</button>
+                    </div>
+                </div>
+                
+                <div id="review" class="tab-content">
+                    <h3>採樣資料檢視</h3>
+                    <div class="toolbar">
+                        <button class="btn btn-primary" onclick="Sampling.exportData()">匯出資料</button>
+                        <button class="btn" onclick="Sampling.printSummary()">列印摘要</button>
+                    </div>
+                    
+                    <table class="table" id="samplingDataTable">
+                        <thead>
+                            <tr>
+                                <th>監測點位</th>
+                                <th>監測項目</th>
+                                <th>採樣時間</th>
+                                <th>測定值</th>
+                                <th>標準值</th>
+                                <th>狀態</th>
+                                <th>操作</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- 動態載入採樣資料 -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 儀器校正模態框 -->
+    <div id="calibrationModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>儀器校正</h2>
+            </div>
+            
+            <div class="form-group">
+                <label>儀器編號</label>
+                <input type="text" id="instrumentId" readonly>
+            </div>
+            
+            <div class="grid-2col">
+                <div class="form-group">
+                    <label>校正前讀值</label>
+                    <input type="number" id="beforeCalibration" step="0.001">
+                </div>
+                <div class="form-group">
+                    <label>標準氣體濃度</label>
+                    <input type="number" id="standardConcentration" step="0.001">
+                </div>
+            </div>
+            
+            <div class="grid-2col">
+                <div class="form-group">
+                    <label>校正後讀值</label>
+                    <input type="number" id="afterCalibration" step="0.001">
+                </div>
+                <div class="form-group">
+                    <label>校正係數</label>
+                    <input type="number" id="calibrationFactor" readonly>
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label>校正備註</label>
+                <textarea id="calibrationNotes" placeholder="校正過程記錄"></textarea>
+            </div>
+            
+            <div class="modal-footer">
+                <button class="btn" onclick="Common.closeModal()">取消</button>
+                <button class="btn btn-primary" onclick="Sampling.saveCalibration()">儲存校正</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 品管樣本模態框 -->
+    <div id="qcSampleModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>品管樣本</h2>
+            </div>
+            
+            <div class="tabs">
+                <div class="tab active" onclick="Common.switchTab(event, 'blankSample', '#qcSampleModal')">空白樣本</div>
+                <div class="tab" onclick="Common.switchTab(event, 'duplicateSample', '#qcSampleModal')">重複樣本</div>
+                <div class="tab" onclick="Common.switchTab(event, 'spikedSample', '#qcSampleModal')">添加樣本</div>
+            </div>
+            
+            <div id="blankSample" class="tab-content active">
+                <h3>空白樣本記錄</h3>
+                <div class="form-group">
+                    <label>空白樣本編號</label>
+                    <input type="text" id="blankSampleId">
+                </div>
+                <div class="form-group">
+                    <label>空白類型</label>
+                    <select id="blankType">
+                        <option>實驗室空白</option>
+                        <option>現場空白</option>
+                        <option>運輸空白</option>
+                    </select>
+                </div>
+            </div>
+            
+            <div id="duplicateSample" class="tab-content">
+                <h3>重複樣本記錄</h3>
+                <div class="form-group">
+                    <label>原始樣本編號</label>
+                    <input type="text" id="originalSampleId">
+                </div>
+                <div class="form-group">
+                    <label>重複樣本編號</label>
+                    <input type="text" id="duplicateSampleId">
+                </div>
+            </div>
+            
+            <div id="spikedSample" class="tab-content">
+                <h3>添加樣本記錄</h3>
+                <div class="form-group">
+                    <label>基質樣本編號</label>
+                    <input type="text" id="matrixSampleId">
+                </div>
+                <div class="form-group">
+                    <label>添加標準品濃度</label>
+                    <input type="number" id="spikeConcentration" step="0.001">
+                </div>
+            </div>
+            
+            <div class="modal-footer">
+                <button class="btn" onclick="Common.closeModal()">關閉</button>
+                <button class="btn btn-primary" onclick="Sampling.saveQCSample()">儲存品管樣本</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 導航系統 -->
+    <script src="navigation.js"></script>
+    <script src="common.js"></script>
+    <script src="data-init.js"></script>
+    <script src="sampling.js"></script>
+</body>
+</html>

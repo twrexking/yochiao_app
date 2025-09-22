@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>友喬環境監測系統 - 報表輸出</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    
+    <div class="container">
+        <div class="page">
+            <h2>報表輸出</h2>
+            
+            <div class="dashboard-grid">
+                <!-- 快速報表 -->
+                <div class="card">
+                    <h3>快速報表產生</h3>
+                    <form id="quickReportForm">
+                        <div class="form-group">
+                            <label>選擇專案</label>
+                            <select name="projectId" id="projectSelect" onchange="Reports.loadProjectData()" required>
+                                <option value="">請選擇專案</option>
+                                <option value="YOC114-001">YOC114-001 味全食品 - 114年第一季環境監測</option>
+                                <option value="YOC114-002">YOC114-002 葡萄王生技 - 龍潭廠區監測</option>
+                                <option value="YOC113-015">YOC113-015 統一企業 - 永康廠區年度監測</option>
+                            </select>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label>報表類型</label>
+                            <select name="reportType" required>
+                                <option value="monitoring_summary">監測總表</option>
+                                <option value="analysis_report">分析報告</option>
+                                <option value="plan_document">計畫書</option>
+                                <option value="compliance_report">法規符合性報告</option>
+                                <option value="calibration_report">校正報告</option>
+                            </select>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label>輸出格式</label>
+                            <select name="outputFormat" required>
+                                <option value="pdf">PDF</option>
+                                <option value="word">Word</option>
+                                <option value="excel">Excel</option>
+                            </select>
+                        </div>
+                        
+                        <button type="button" class="btn btn-primary" onclick="Reports.generateQuickReport()">產生報表</button>
+                    </form>
+                </div>
+                
+                <!-- 批次報表 -->
+                <div class="card">
+                    <h3>批次報表處理</h3>
+                    <div class="form-group">
+                        <label>日期範圍</label>
+                        <div style="display: flex; gap: 10px; align-items: center;">
+                            <input type="date" id="batchStartDate">
+                            <span>至</span>
+                            <input type="date" id="batchEndDate">
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>客戶篩選</label>
+                        <select id="batchClientFilter">
+                            <option value="">所有客戶</option>
+                            <option value="C001">味全食品工業股份有限公司</option>
+                            <option value="C002">葡萄王生技股份有限公司</option>
+                            <option value="C003">統一企業股份有限公司</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>狀態篩選</label>
+                        <select id="batchStatusFilter">
+                            <option value="">所有狀態</option>
+                            <option value="已完成">已完成</option>
+                            <option value="執行中">執行中</option>
+                        </select>
+                    </div>
+                    
+                    <button class="btn btn-primary" onclick="Reports.generateBatchReports()">批次產生</button>
+                </div>
+                
+                <!-- 自訂報表 -->
+                <div class="card">
+                    <h3>自訂報表</h3>
+                    <div class="form-group">
+                        <label>報表名稱</label>
+                        <input type="text" id="customReportName" placeholder="輸入報表名稱">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>包含欄位</label>
+                        <div class="checkbox-container" style="max-height: 150px; overflow-y: auto; border: 1px solid #ccc; padding: 10px;">
+                            <div class="checkbox-item" onclick="Reports.toggleCheckbox(this)"><input type="checkbox" value="project_info" checked> <span>專案資訊</span></div>
+                            <div class="checkbox-item" onclick="Reports.toggleCheckbox(this)"><input type="checkbox" value="client_info" checked> <span>客戶資訊</span></div>
+                            <div class="checkbox-item" onclick="Reports.toggleCheckbox(this)"><input type="checkbox" value="sampling_data" checked> <span>採樣資料</span></div>
+                            <div class="checkbox-item" onclick="Reports.toggleCheckbox(this)"><input type="checkbox" value="lab_results"> <span>實驗室結果</span></div>
+                            <div class="checkbox-item" onclick="Reports.toggleCheckbox(this)"><input type="checkbox" value="compliance_check"> <span>法規比對</span></div>
+                            <div class="checkbox-item" onclick="Reports.toggleCheckbox(this)"><input type="checkbox" value="calibration_data"> <span>校正資料</span></div>
+                            <div class="checkbox-item" onclick="Reports.toggleCheckbox(this)"><input type="checkbox" value="weather_data"> <span>氣象資料</span></div>
+                            <div class="checkbox-item" onclick="Reports.toggleCheckbox(this)"><input type="checkbox" value="photos"> <span>現場照片</span></div>
+                        </div>
+                    </div>
+                    
+                    <button class="btn btn-primary" onclick="Reports.createCustomReport()">建立自訂報表</button>
+                </div>
+            </div>
+            
+            <!-- 報表歷史 -->
+            <div style="margin-top: 30px;">
+                <div class="toolbar">
+                    <h3>報表產生歷史</h3>
+                    <div class="search-bar">
+                        <input type="text" id="historySearch" placeholder="搜尋報表名稱" onkeyup="Reports.searchHistory()">
+                        <button class="btn" onclick="Reports.searchHistory()">搜尋</button>
+                        <button class="btn" onclick="Reports.clearHistory()">清除歷史</button>
+                    </div>
+                </div>
+                
+                <table class="table" id="reportHistoryTable">
+                    <thead>
+                        <tr>
+                            <th>產生時間</th>
+                            <th>報表名稱</th>
+                            <th>專案</th>
+                            <th>報表類型</th>
+                            <th>輸出格式</th>
+                            <th>檔案大小</th>
+                            <th>狀態</th>
+                            <th>操作</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>2025/03/22 14:30</td>
+                            <td>味全食品114年Q1監測總表</td>
+                            <td>YOC114-001</td>
+                            <td>監測總表</td>
+                            <td>PDF</td>
+                            <td>2.5 MB</td>
+                            <td><span class="status-badge">完成</span></td>
+                            <td>
+                                <button class="btn" onclick="Reports.downloadReport('report_001')">下載</button>
+                                <button class="btn" onclick="Reports.previewReport('report_001')">預覽</button>
+                                <button class="btn" onclick="Reports.deleteReport('report_001')">刪除</button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>2025/03/20 16:45</td>
+                            <td>葡萄王生技計畫書</td>
+                            <td>YOC114-002</td>
+                            <td>計畫書</td>
+                            <td>Word</td>
+                            <td>1.8 MB</td>
+                            <td><span class="status-badge">完成</span></td>
+                            <td>
+                                <button class="btn" onclick="Reports.downloadReport('report_002')">下載</button>
+                                <button class="btn" onclick="Reports.previewReport('report_002')">預覽</button>
+                                <button class="btn" onclick="Reports.deleteReport('report_002')">刪除</button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>2025/03/18 10:15</td>
+                            <td>統一企業年度監測分析報告</td>
+                            <td>YOC113-015</td>
+                            <td>分析報告</td>
+                            <td>PDF</td>
+                            <td>4.2 MB</td>
+                            <td><span class="status-badge">完成</span></td>
+                            <td>
+                                <button class="btn" onclick="Reports.downloadReport('report_003')">下載</button>
+                                <button class="btn" onclick="Reports.previewReport('report_003')">預覽</button>
+                                <button class="btn" onclick="Reports.deleteReport('report_003')">刪除</button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 報表預覽模態框 -->
+    <div id="reportPreviewModal" class="modal">
+        <div class="modal-content" style="max-width: 90%; max-height: 90%;">
+            <div class="modal-header">
+                <h2 id="previewTitle">報表預覽</h2>
+            </div>
+            
+            <div id="previewContent" style="height: 70vh; overflow-y: auto; border: 1px solid #ccc; padding: 20px;">
+                <!-- 報表預覽內容 -->
+            </div>
+            
+            <div class="modal-footer">
+                <button class="btn" onclick="Common.closeModal()">關閉</button>
+                <button class="btn" onclick="Reports.printPreview()">列印</button>
+                <button class="btn btn-primary" onclick="Reports.downloadCurrentPreview()">下載</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 進度追蹤模態框 -->
+    <div id="progressModal" class="modal">
+        <div class="modal-content" style="max-width: 500px;">
+            <div class="modal-header">
+                <h2>報表產生進度</h2>
+            </div>
+            
+            <div id="progressInfo">
+                <div style="margin-bottom: 20px;">
+                    <div style="background: #f0f0f0; height: 20px; border: 1px solid #ccc;">
+                        <div id="progressBar" style="background: #333; height: 100%; width: 0%; transition: width 0.3s;"></div>
+                    </div>
+                    <p id="progressText" style="margin-top: 10px;">準備中...</p>
+                </div>
+                
+                <div id="progressDetails">
+                    <p>📋 正在收集專案資料...</p>
+                    <p>📊 正在處理監測數據...</p>
+                    <p>📈 正在生成圖表...</p>
+                    <p>📄 正在產生報表文件...</p>
+                </div>
+            </div>
+            
+            <div class="modal-footer">
+                <button class="btn" id="cancelGeneration" onclick="Reports.cancelGeneration()">取消</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 導航系統 -->
+    <script src="navigation.js"></script>
+    <script src="common.js"></script>
+    <script src="reports.js"></script>
+</body>
+</html>

@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>友喬環境監測系統 - 儀表板</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    
+    <div class="container">
+        <div class="page">
+            <h2>儀表板</h2>
+            <div class="dashboard-grid">
+                <div class="card">
+                    <h3>進行中專案</h3>
+                    <p style="font-size: 32px; text-align: center; margin: 20px 0;">5</p>
+                    <ul style="list-style: none; padding: 0;">
+                        <li style="padding: 5px 0;">▪ 味全總公司 - 監測中</li>
+                        <li style="padding: 5px 0;">▪ 葡萄王工廠 - 計畫書撰寫</li>
+                        <li style="padding: 5px 0;">▪ 龍潭廠區 - 待實驗室分析</li>
+                    </ul>
+                </div>
+                
+                <div class="card">
+                    <h3>本週待辦事項</h3>
+                    <ul style="list-style: none; padding: 0;">
+                        <li style="padding: 8px 0; border-bottom: 1px solid #ddd;">
+                            <label><input type="checkbox"> 完成味全監測報告</label>
+                        </li>
+                        <li style="padding: 8px 0; border-bottom: 1px solid #ddd;">
+                            <label><input type="checkbox"> 葡萄王現場採樣 (3/20)</label>
+                        </li>
+                        <li style="padding: 8px 0; border-bottom: 1px solid #ddd;">
+                            <label><input type="checkbox"> 更新法規資料庫</label>
+                        </li>
+                        <li style="padding: 8px 0;">
+                            <label><input type="checkbox"> 儀器校正 (TSI-7515)</label>
+                        </li>
+                    </ul>
+                </div>
+                
+                <div class="card">
+                    <h3>快速操作</h3>
+                    <a href="projects.html" class="btn btn-primary">新增專案</a>
+                    <a href="sampling.html" class="btn">開始採樣</a>
+                    <a href="reports.html" class="btn">報表輸出</a>
+                    <a href="database.html" class="btn">資料維護</a>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 導航系統 -->
+    <script src="navigation.js"></script>
+    <script src="common.js"></script>
+    <script>
+        // 儀表板專用功能
+        const Dashboard = {
+            // 載入待辦事項
+            loadTodos: function() {
+                // 這裡可以從 API 或本地儲存載入待辦事項
+                const todos = DataManager.getFromLocal('todos') || [];
+                this.renderTodos(todos);
+            },
+
+            // 渲染待辦事項
+            renderTodos: function(todos) {
+                // 實作渲染邏輯
+            },
+
+            // 更新專案統計
+            updateProjectStats: function() {
+                // 實作統計更新邏輯
+            }
+        };
+
+        // 頁面載入完成後初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            Dashboard.loadTodos();
+            Dashboard.updateProjectStats();
+        });
+
+        // 暴露給全域使用
+        window.Dashboard = Dashboard;
+    </script>
+</body>
+</html>

@@ -1,0 +1,116 @@
+{
+  "defaultVariables": {
+    "basicVariables": {
+      "CustomName1": "葡萄王生技股份有限公司",
+      "CustomName2": "龍潭廠",
+      "CompanyName": "友喬檢驗有限公司",
+      "ReportingYear": "114年度上半年度",
+      "CreateDate": "114.09.21",
+      "CreateBy": "友喬檢驗有限公司 by Rex"
+    },
+    "arrayVariables": {
+      "BasicDataList": [
+        "1-1.廠區配置圖，圖二。",
+        "1-2.人員組織配置，如圖三。"
+      ]
+    },
+    "objectArrayVariables": {
+      "BasicDataTable": [
+        {
+          "Name": "總公司",
+          "Address": "台北市信義區信義路五段7號",
+          "EmpCounts": 150
+        }
+      ],
+      "MonitoringScheduleTable": [
+        {
+          "Name": "114上半年環測規劃",
+          "Date": "113.12月",
+          "Memo": "確認現場狀況及需求，並擬定本次採樣點、廠商聯繫"
+        },
+        {
+          "Name": "執行環境監測",
+          "Date": "1月",
+          "Memo": "依擬定規劃執行採樣"
+        },
+        {
+          "Name": "114上半年監測報告",
+          "Date": "2月",
+          "Memo": "確認監測報告無誤，並依據計畫書內容做後續處理"
+        }
+      ]
+    }
+  },
+  "placeholderTexts": {
+    "CustomName1": "請輸入客戶名稱1",
+    "CustomName2": "請輸入客戶名稱2",
+    "CompanyName": "請輸入公司名稱",
+    "ReportingYear": "請輸入報告年度",
+    "CreateDate": "請輸入撰寫日期",
+    "CreateBy": "請輸入撰寫機構",
+    "BasicDataList": "請每行輸入一個項目，例如：\n項目一\n項目二\n項目三",
+    "basicDataName": "請輸入名稱",
+    "basicDataAddress": "請輸入地址",
+    "basicDataEmpCount": "請輸入員工人數",
+    "jobName": "請輸入工作項目",
+    "jobDate": "請輸入時程",
+    "jobMemo": "請輸入備註"
+  },
+  "templateVariableStructure": {
+    "simpleVariables": [
+      "CustomName1",
+      "CustomName2", 
+      "CompanyName",
+      "ReportingYear",
+      "CreateDate",
+      "CreateBy"
+    ],
+    "arrayVariables": [
+      "BasicDataList"
+    ],
+    "objectArrays": {
+      "BasicDataTable": {
+        "fields": ["Name", "Address", "EmpCounts"],
+        "syntax": "{{FOR datarow IN BasicDataTable}} {{datarow.Name}} {{datarow.Address}} {{datarow.EmpCounts}} {{END-FOR datarow}}"
+      },
+      "MonitoringScheduleTable": {
+        "fields": ["Name", "Date", "Memo"],
+        "syntax": "{{FOR jobrow IN MonitoringScheduleTable}} {{jobrow.Name}} {{jobrow.Date}} {{jobrow.Memo}} {{END-FOR jobrow}}"
+      }
+    }
+  },
+  "usageExamples": {
+    "simpleVariableUsage": {
+      "description": "在 Word 樣板中使用簡單變數",
+      "examples": [
+        "{{CustomName1}} → 葡萄王生技股份有限公司",
+        "{{CompanyName}} → 友喬檢驗有限公司",
+        "{{ReportingYear}} → 114年度上半年度"
+      ]
+    },
+    "arrayUsage": {
+      "description": "在 Word 樣板中使用陣列",
+      "syntax": "{{FOR data IN BasicDataList}} {{data}} {{END-FOR data}}",
+      "example": "會輸出：\n1-1.廠區配置圖，圖二。\n1-2.人員組織配置，如圖三。"
+    },
+    "objectArrayUsage": {
+      "description": "在 Word 樣板中使用物件陣列",
+      "BasicDataTable": {
+        "syntax": "{{FOR datarow IN BasicDataTable}} 公司名稱：{{datarow.Name}}，地址：{{datarow.Address}}，員工數：{{datarow.EmpCounts}}人 {{END-FOR datarow}}",
+        "example": "會輸出：公司名稱：總公司，地址：台北市信義區信義路五段7號，員工數：150人"
+      },
+      "MonitoringScheduleTable": {
+        "syntax": "{{FOR jobrow IN MonitoringScheduleTable}} 工作項目：{{jobrow.Name}}，時程：{{jobrow.Date}}，備註：{{jobrow.Memo}} {{END-FOR jobrow}}",
+        "example": "會輸出多行監測時程資料"
+      }
+    }
+  },
+  "metadata": {
+    "description": "Word 樣板處理器的預設資料結構",
+    "version": "1.0",
+    "lastUpdate": "2025-09-22",
+    "templateEngine": "docx-templates",
+    "company": "友喬檢驗有限公司",
+    "purpose": "環境監測報告樣板資料"
+  }
+}

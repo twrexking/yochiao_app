@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>友喬環境監測系統 - 專案管理</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    
+    <div class="container">
+        <div class="page">
+            <div class="toolbar">
+                <h2>專案管理</h2>
+                <div class="search-bar">
+                    <select id="statusFilter" onchange="Projects.filterProjects()">
+                        <option value="">所有狀態</option>
+                        <option value="報價中">報價中</option>
+                        <option value="執行中">執行中</option>
+                        <option value="已完成">已完成</option>
+                    </select>
+                    <input type="text" id="projectSearch" placeholder="搜尋專案名稱" onkeyup="Projects.searchProjects()">
+                    <button class="btn" onclick="Projects.searchProjects()">搜尋</button>
+                    <button class="btn btn-primary" onclick="Common.showModal('newProject')">新增專案</button>
+                </div>
+            </div>
+            
+            <table class="table" id="projectsTable">
+                <thead>
+                    <tr>
+                        <th>專案編號</th>
+                        <th>客戶名稱</th>
+                        <th>專案名稱</th>
+                        <th>監測日期</th>
+                        <th>狀態</th>
+                        <th>進度</th>
+                        <th>操作</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- 動態載入專案資料 -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+    
+    <!-- 新增專案模態框 -->
+    <div id="newProjectModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>新增專案</h2>
+            </div>
+            
+            <div class="workflow-steps">
+                <div class="step active" id="step1Indicator">
+                    <div class="step-circle">1</div>
+                    <span>基本資料</span>
+                </div>
+                <div class="step" id="step2Indicator">
+                    <div class="step-circle">2</div>
+                    <span>監測規劃</span>
+                </div>
+                <div class="step" id="step3Indicator">
+                    <div class="step-circle">3</div>
+                    <span>計畫書設定</span>
+                </div>
+                <div class="step" id="step4Indicator">
+                    <div class="step-circle">4</div>
+                    <span>確認建立</span>
+                </div>
+            </div>
+            
+            <!-- 步驟 1: 基本資料 -->
+            <div id="step1" class="step-content">
+                <h3>專案基本資料</h3>
+                <form id="projectBasicForm">
+                    <div class="form-group">
+                        <label>客戶名稱</label>
+                        <select name="clientId" id="clientSelect" required>
+                            <option value="">請選擇客戶</option>
+                            <!-- 動態載入客戶資料 -->
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>專案名稱</label>
+                        <input type="text" name="projectName" placeholder="例：114年第一季環境監測" required>
+                    </div>
+                    
+                    <div class="grid-2col">
+                        <div class="form-group">
+                            <label>預計監測日期</label>
+                            <input type="date" name="monitoringDate" required>
+                        </div>
+                        <div class="form-group">
+                            <label>監測天數</label>
+                            <input type="number" name="monitoringDays" value="1" min="1" required>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>廠區地址</label>
+                        <input type="text" name="facilityAddress" placeholder="監測地點地址" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>專案說明</label>
+                        <textarea name="projectDescription" placeholder="專案概述與特殊需求"></textarea>
+                    </div>
+                </form>
+            </div>
+            
+            <!-- 步驟 2: 監測規劃 -->
+            <div id="step2" class="step-content" style="display: none;">
+                <h3>監測規劃</h3>
+                <div class="form-group">
+                    <label>監測類型</label>
+                    <select id="monitoringType" onchange="Projects.generateMonitoringPoints()">
+                        <option>室內空氣品質監測</option>
+                        <option>作業環境監測</option>
+                        <option>環境影響評估</option>
+                        <option>特殊有害物質監測</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label>監測點位數量</label>
+                    <input type="number" id="monitoringPoints" value="1" min="1" onchange="Projects.generateMonitoringPoints()">
+                </div>
+                
+                <div id="monitoringPointsList">
+                    <!-- 動態生成監測點位（包含監測項目） -->
+                </div>
+            </div>
+            
+            <!-- 步驟 3: 計畫書設定 -->
+            <div id="step3" class="step-content" style="display: none;">
+                <h3>計畫書設定</h3>
+                <div class="form-group">
+                    <label>計畫書模板</label>
+                    <select>
+                        <option>標準環境監測計畫書 v2.1</option>
+                        <option>特殊作業環境監測計畫書 v1.5</option>
+                        <option>自訂模板</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label>報告產出格式</label>
+                    <div>
+                        <label><input type="checkbox" checked> PDF 報告</label>
+                        <label><input type="checkbox" checked> Word 文件</label>
+                        <label><input type="checkbox"> Excel 數據表</label>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label>特殊需求</label>
+                    <textarea placeholder="計畫書特殊要求或客製化內容"></textarea>
+                </div>
+            </div>
+            
+            <!-- 步驟 4: 確認建立 -->
+            <div id="step4" class="step-content" style="display: none;">
+                <h3>確認專案資訊</h3>
+                <div id="projectSummary">
+                    <!-- 專案摘要資訊 -->
+                </div>
+            </div>
+            
+            <div class="modal-footer">
+                <button class="btn" onclick="Common.closeModal()">取消</button>
+                <button class="btn" id="prevBtn" onclick="Projects.prevStep()" style="display: none;">上一步</button>
+                <button class="btn btn-primary" id="nextBtn" onclick="Projects.nextStep()">下一步</button>
+                <button class="btn btn-primary" id="createBtn" onclick="Projects.createProject()" style="display: none;">建立專案</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 專案詳細管理模態框 -->
+    <div id="projectDetailModal" class="modal">
+        <div class="modal-content" style="max-width: 1200px;">
+            <div class="modal-header">
+                <h2 id="projectDetailTitle">專案管理</h2>
+            </div>
+            
+            <div class="tabs">
+                <div class="tab active" onclick="Common.switchTab(event, 'projectInfo', '#projectDetailModal')">專案資訊</div>
+                <div class="tab" onclick="Common.switchTab(event, 'monitoringPoints', '#projectDetailModal')">監測點位</div>
+                <div class="tab" onclick="Common.switchTab(event, 'planDocument', '#projectDetailModal')">計畫書</div>
+                <div class="tab" onclick="Common.switchTab(event, 'samplingProgress', '#projectDetailModal')">採樣進度</div>
+                <div class="tab" onclick="Common.switchTab(event, 'labResults', '#projectDetailModal')">實驗室結果</div>
+            </div>
+            
+            <div id="projectInfo" class="tab-content active">
+                <h3>專案資訊</h3>
+                <div class="grid-2col">
+                    <div>
+                        <p><strong>專案編號：</strong><span id="detailProjectId"></span></p>
+                        <p><strong>專案名稱：</strong><span id="detailProjectName"></span></p>
+                        <p><strong>客戶名稱：</strong><span id="detailClientName"></span></p>
+                        <p><strong>監測地點：</strong><span id="detailLocation"></span></p>
+                        <p><strong>專案說明：</strong><span id="detailDescription"></span></p>
+                    </div>
+                    <div>
+                        <p><strong>監測日期：</strong><span id="detailMonitoringDate"></span></p>
+                        <p><strong>監測天數：</strong><span id="detailMonitoringDays"></span></p>
+                        <p><strong>監測類型：</strong><span id="detailMonitoringType"></span></p>
+                        <p><strong>監測點位：</strong><span id="detailMonitoringPoints"></span></p>
+                        <p><strong>專案狀態：</strong><span id="detailProjectStatus"></span></p>
+                        <p><strong>進度：</strong><span id="detailProgress"></span></p>
+                    </div>
+                </div>
+                
+                <h4 style="margin-top: 30px;">監測項目清單</h4>
+                <table class="table" id="projectItemsTable">
+                    <thead>
+                        <tr>
+                            <th>監測點位</th>
+                            <th>監測項目數</th>
+                            <th>採樣狀態</th>
+                            <th>實驗室狀態</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- 動態載入 -->
+                    </tbody>
+                </table>
+            </div>
+            
+            <div id="monitoringPoints" class="tab-content">
+                <h3>監測點位配置</h3>
+                <button class="btn btn-primary" onclick="Projects.addMonitoringPoint()">新增點位</button>
+                <div id="pointsConfiguration">
+                    <!-- 點位設定內容 -->
+                </div>
+            </div>
+            
+            <div id="planDocument" class="tab-content">
+                <h3>計畫書管理</h3>
+                <div class="toolbar">
+                    <button class="btn btn-primary" onclick="Projects.generatePlan()">產生計畫書</button>
+                    <button class="btn" onclick="Projects.previewPlan()">預覽</button>
+                    <button class="btn" onclick="Projects.downloadPlan()">下載</button>
+                </div>
+                <div id="planDocumentContent">
+                    <p>計畫書狀態：<span class="status-badge">已產生</span></p>
+                    <p>最後更新：2025/03/15 14:30</p>
+                    <p>版本：v1.2</p>
+                </div>
+            </div>
+            
+            <div id="samplingProgress" class="tab-content">
+                <h3>採樣進度追蹤</h3>
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>點位名稱</th>
+                            <th>採樣項目</th>
+                            <th>規劃時間</th>
+                            <th>實際時間</th>
+                            <th>狀態</th>
+                            <th>備註</th>
+                        </tr>
+                    </thead>
+                    <tbody id="samplingProgressTable">
+                        <!-- 動態載入 -->
+                    </tbody>
+                </table>
+            </div>
+            
+            <div id="labResults" class="tab-content">
+                <h3>實驗室結果</h3>
+                <div class="toolbar">
+                    <button class="btn" onclick="Projects.importLabData()">匯入數據</button>
+                    <button class="btn btn-primary" onclick="Projects.generateReport()">產生報告</button>
+                </div>
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>樣品編號</th>
+                            <th>監測項目</th>
+                            <th>測定值</th>
+                            <th>標準值</th>
+                            <th>判定結果</th>
+                            <th>報告日期</th>
+                        </tr>
+                    </thead>
+                    <tbody id="labResultsTable">
+                        <!-- 動態載入 -->
+                    </tbody>
+                </table>
+            </div>
+            
+            <div class="modal-footer">
+                <button class="btn" onclick="Common.closeModal()">關閉</button>
+                <button class="btn" onclick="Projects.editProject()">編輯專案</button>
+                <button class="btn btn-primary" onclick="PageNavigation.navigateTo('sampling')">開始採樣</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 導航系統 -->
+    <script src="navigation.js"></script>
+    <script src="common.js"></script>
+    <script src="data-init.js"></script>
+    <!-- Word 套版工具 -->
+    <script src="word-template-generator.js"></script>
+    <script src="projects.js"></script>
+</body>
+</html>

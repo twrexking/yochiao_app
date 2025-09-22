@@ -1,0 +1,483 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Word 套版工具程式庫 - 使用範例</title>
+    <style>
+        body {
+            font-family: -apple-system, Arial, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            line-height: 1.6;
+        }
+        
+        .section {
+            margin-bottom: 40px;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            background: #f9f9f9;
+        }
+        
+        h1, h2 {
+            color: #333;
+            border-bottom: 2px solid #007acc;
+            padding-bottom: 10px;
+        }
+        
+        .code-block {
+            background: #f4f4f4;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            padding: 15px;
+            margin: 10px 0;
+            overflow-x: auto;
+        }
+        
+        .btn {
+            background: #007acc;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        
+        .btn:hover {
+            background: #005a9e;
+        }
+        
+        .btn-secondary {
+            background: #6c757d;
+        }
+        
+        .example-controls {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin: 20px 0;
+        }
+        
+        .status {
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 4px;
+            border: 1px solid;
+        }
+        
+        .status.success {
+            background: #d4edda;
+            border-color: #c3e6cb;
+            color: #155724;
+        }
+        
+        .status.error {
+            background: #f8d7da;
+            border-color: #f5c6cb;
+            color: #721c24;
+        }
+        
+        .status.info {
+            background: #d1ecf1;
+            border-color: #bee5eb;
+            color: #0c5460;
+        }
+        
+        input[type="file"] {
+            margin: 10px 0;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        
+        .variable-group {
+            margin: 15px 0;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            background: white;
+        }
+        
+        .variable-group h4 {
+            margin-top: 0;
+            color: #495057;
+        }
+        
+        input, textarea {
+            width: 100%;
+            max-width: 400px;
+            padding: 8px;
+            margin: 5px 0;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        
+        textarea {
+            min-height: 80px;
+            resize: vertical;
+        }
+    </style>
+</head>
+<body>
+    <h1>Word 套版工具程式庫 - 使用範例</h1>
+    
+    <!-- API 說明 -->
+    <div class="section">
+        <h2>📚 API 說明</h2>
+        
+        <h3>基本使用方法</h3>
+        <div class="code-block">
+<pre>// 1. 建立套版生成器實例
+const generator = new WordTemplateGenerator();
+
+// 2. 載入樣板檔案 (從 template 目錄)
+await generator.loadTemplate('my_template.docx');
+
+// 3. 準備變數資料
+const variables = {
+    CompanyName: '友喬環境監測公司',
+    ProjectName: '環境監測專案',
+    Date: new Date(),
+    ClientData: [
+        { Name: '客戶A', Address: '台北市' },
+        { Name: '客戶B', Address: '新北市' }
+    ]
+};
+
+// 4. 生成並下載文檔
+await generator.generateAndDownload(variables, '監測報告.docx');</pre>
+        </div>
+        
+        <h3>主要方法</h3>
+        <ul>
+            <li><strong>loadTemplate(templatePath)</strong> - 從 template 目錄載入樣板</li>
+            <li><strong>loadTemplateFromFile(file)</strong> - 從 File 物件載入樣板</li>
+            <li><strong>generateDocument(variables, options)</strong> - 生成文檔，返回 ArrayBuffer</li>
+            <li><strong>generateAndDownload(variables, filename, options)</strong> - 生成並下載文檔</li>
+            <li><strong>getVariablesSuggestions(variables)</strong> - 取得變數使用建議</li>
+        </ul>
+    </div>
+    
+    <!-- 互動式範例 -->
+    <div class="section">
+        <h2>🎯 互動式範例</h2>
+        
+        <div class="example-controls">
+            <button class="btn" onclick="loadExampleTemplate()">載入範例樣板</button>
+            <input type="file" id="fileInput" accept=".docx" onchange="loadUserTemplate(this.files[0])">
+            <button class="btn btn-secondary" onclick="showVariablesSuggestions()">顯示變數建議</button>
+        </div>
+        
+        <div id="status"></div>
+        
+        <!-- 變數設定區域 -->
+        <div class="variable-group">
+            <h4>📝 基本變數</h4>
+            <label>公司名稱:</label>
+            <input type="text" id="companyName" value="友喬環境監測公司" placeholder="輸入公司名稱">
+            
+            <label>專案名稱:</label>
+            <input type="text" id="projectName" value="環境監測專案" placeholder="輸入專案名稱">
+            
+            <label>聯絡人:</label>
+            <input type="text" id="contactPerson" value="張經理" placeholder="輸入聯絡人">
+            
+            <label>備註說明:</label>
+            <textarea id="notes" placeholder="輸入備註說明">本次監測依據環保署相關規定執行，確保環境品質符合標準。</textarea>
+        </div>
+        
+        <div class="variable-group">
+            <h4>📊 資料清單 (陣列)</h4>
+            <label>監測項目清單 (每行一項):</label>
+            <textarea id="monitoringItems" placeholder="請輸入監測項目，每行一項">空氣品質監測
+水質監測
+噪音監測
+土壤檢測</textarea>
+        </div>
+        
+        <div class="variable-group">
+            <h4>📋 資料表格 (物件陣列)</h4>
+            <p>客戶資料表:</p>
+            <div id="clientTableContainer">
+                <div class="client-row">
+                    <input type="text" placeholder="客戶名稱" value="ABC科技公司">
+                    <input type="text" placeholder="聯絡地址" value="台北市信義區信義路五段7號">
+                    <input type="number" placeholder="員工人數" value="150">
+                    <button class="btn btn-secondary" onclick="removeClientRow(this)">刪除</button>
+                </div>
+            </div>
+            <button class="btn btn-secondary" onclick="addClientRow()">新增客戶</button>
+        </div>
+        
+        <div class="example-controls">
+            <button class="btn" onclick="generatePreviewDocument()">生成文檔</button>
+            <button class="btn" onclick="downloadDocument()">下載文檔</button>
+        </div>
+        
+        <div id="variablesSuggestions"></div>
+    </div>
+    
+    <!-- 變數語法說明 -->
+    <div class="section">
+        <h2>💡 樣板變數語法說明</h2>
+        
+        <h3>簡單變數</h3>
+        <div class="code-block">
+<pre>{{CompanyName}}     → 友喬環境監測公司
+{{ProjectName}}     → 環境監測專案
+{{Date}}            → 2025年9月22日</pre>
+        </div>
+        
+        <h3>陣列變數 (清單)</h3>
+        <div class="code-block">
+<pre>{{FOR item IN MonitoringItems}}
+- {{item}}
+{{END-FOR item}}
+
+輸出:
+- 空氣品質監測
+- 水質監測
+- 噪音監測</pre>
+        </div>
+        
+        <h3>物件陣列 (表格)</h3>
+        <div class="code-block">
+<pre>{{FOR client IN ClientData}}
+客戶: {{client.Name}}
+地址: {{client.Address}}
+員工: {{client.EmpCount}}人
+{{END-FOR client}}
+
+輸出:
+客戶: ABC科技公司
+地址: 台北市信義區信義路五段7號
+員工: 150人</pre>
+        </div>
+        
+        <h3>進階功能</h3>
+        <div class="code-block">
+<pre>// 條件判斷
+{{IF ClientData.length > 0}}
+共有 {{ClientData.length}} 個客戶
+{{END-IF}}
+
+// 日期格式化
+{{formatDate(Date)}}
+
+// 數字格式化
+{{formatNumber(Amount, 2)}}</pre>
+        </div>
+    </div>
+
+    <!-- 載入套版工具 -->
+    <script src="word-template-generator.js"></script>
+    <script>
+        let generator = null;
+        let currentVariables = {};
+        
+        // 初始化
+        document.addEventListener('DOMContentLoaded', async function() {
+            try {
+                generator = new WordTemplateGenerator();
+                showStatus('Word 套版工具已準備就緒', 'success');
+            } catch (error) {
+                showStatus('初始化失敗: ' + error.message, 'error');
+            }
+        });
+        
+        // 顯示狀態訊息
+        function showStatus(message, type = 'info') {
+            const statusDiv = document.getElementById('status');
+            statusDiv.className = `status ${type}`;
+            statusDiv.textContent = message;
+        }
+        
+        // 載入範例樣板
+        async function loadExampleTemplate() {
+            try {
+                showStatus('正在載入範例樣板...', 'info');
+                
+                // 嘗試載入專案中的樣板檔案
+                const templateFiles = ['my_template.docx', 'my_template2.docx'];
+                let loaded = false;
+                
+                for (const templateFile of templateFiles) {
+                    try {
+                        const result = await generator.loadTemplate(templateFile);
+                        showStatus(`${result.message} (大小: ${(result.size / 1024).toFixed(1)} KB)`, 'success');
+                        loaded = true;
+                        break;
+                    } catch (error) {
+                        console.log(`嘗試載入 ${templateFile} 失敗:`, error.message);
+                    }
+                }
+                
+                if (!loaded) {
+                    showStatus('找不到範例樣板檔案，請手動上傳 .docx 檔案', 'error');
+                }
+            } catch (error) {
+                showStatus('載入範例樣板失敗: ' + error.message, 'error');
+            }
+        }
+        
+        // 載入使用者樣板
+        async function loadUserTemplate(file) {
+            if (!file) return;
+            
+            try {
+                showStatus('正在載入樣板...', 'info');
+                const result = await generator.loadTemplateFromFile(file);
+                showStatus(`${result.message} (大小: ${(result.size / 1024).toFixed(1)} KB)`, 'success');
+            } catch (error) {
+                showStatus('載入樣板失敗: ' + error.message, 'error');
+            }
+        }
+        
+        // 收集變數資料
+        function collectVariables() {
+            // 基本變數
+            const variables = {
+                CompanyName: document.getElementById('companyName').value,
+                ProjectName: document.getElementById('projectName').value,
+                ContactPerson: document.getElementById('contactPerson').value,
+                Notes: document.getElementById('notes').value,
+                Date: new Date()
+            };
+            
+            // 監測項目清單 (陣列)
+            const itemsText = document.getElementById('monitoringItems').value;
+            variables.MonitoringItems = itemsText.split('\n')
+                .map(item => item.trim())
+                .filter(item => item.length > 0);
+            
+            // 客戶資料表 (物件陣列)
+            const clientRows = document.querySelectorAll('#clientTableContainer .client-row');
+            variables.ClientData = Array.from(clientRows).map(row => {
+                const inputs = row.querySelectorAll('input');
+                return {
+                    Name: inputs[0].value || '',
+                    Address: inputs[1].value || '',
+                    EmpCount: parseInt(inputs[2].value) || 0
+                };
+            }).filter(client => client.Name.trim().length > 0);
+            
+            currentVariables = variables;
+            return variables;
+        }
+        
+        // 生成預覽文檔
+        async function generatePreviewDocument() {
+            try {
+                showStatus('正在生成文檔...', 'info');
+                const variables = collectVariables();
+                
+                const buffer = await generator.generateDocument(variables);
+                showStatus(`文檔生成成功 (大小: ${(buffer.byteLength / 1024).toFixed(1)} KB)`, 'success');
+                
+                // 顯示變數摘要
+                displayVariablesSummary(variables);
+            } catch (error) {
+                showStatus('生成文檔失敗: ' + error.message, 'error');
+            }
+        }
+        
+        // 下載文檔
+        async function downloadDocument() {
+            try {
+                const variables = collectVariables();
+                const filename = `${variables.ProjectName || '文檔'}_${new Date().toISOString().slice(0, 10)}.docx`;
+                
+                const result = await generator.generateAndDownload(variables, filename);
+                showStatus(`文檔下載完成: ${result.filename}`, 'success');
+            } catch (error) {
+                showStatus('下載文檔失敗: ' + error.message, 'error');
+            }
+        }
+        
+        // 顯示變數建議
+        function showVariablesSuggestions() {
+            const variables = collectVariables();
+            const suggestions = generator.getVariablesSuggestions(variables);
+            
+            let html = '<div class="variable-group"><h4>🔧 變數使用建議</h4>';
+            
+            if (suggestions.simple.length > 0) {
+                html += '<h5>簡單變數:</h5><div class="code-block"><pre>';
+                suggestions.simple.forEach(item => {
+                    html += `${item.syntax}\n`;
+                });
+                html += '</pre></div>';
+            }
+            
+            if (suggestions.arrays.length > 0) {
+                html += '<h5>陣列變數:</h5><div class="code-block"><pre>';
+                suggestions.arrays.forEach(item => {
+                    html += `${item.syntax}\n`;
+                });
+                html += '</pre></div>';
+            }
+            
+            if (suggestions.objects.length > 0) {
+                html += '<h5>物件陣列:</h5><div class="code-block"><pre>';
+                suggestions.objects.forEach(item => {
+                    html += `${item.syntax}\n`;
+                    html += `可用欄位: ${item.fields.join(', ')}\n\n`;
+                });
+                html += '</pre></div>';
+            }
+            
+            html += '</div>';
+            
+            document.getElementById('variablesSuggestions').innerHTML = html;
+        }
+        
+        // 顯示變數摘要
+        function displayVariablesSummary(variables) {
+            let html = '<div class="variable-group"><h4>📊 使用的變數摘要</h4><ul>';
+            
+            Object.entries(variables).forEach(([key, value]) => {
+                if (Array.isArray(value)) {
+                    if (value.length > 0 && typeof value[0] === 'object') {
+                        html += `<li><strong>${key}</strong>: 物件陣列 (${value.length} 項)</li>`;
+                    } else {
+                        html += `<li><strong>${key}</strong>: 陣列 (${value.length} 項)</li>`;
+                    }
+                } else {
+                    html += `<li><strong>${key}</strong>: ${value}</li>`;
+                }
+            });
+            
+            html += '</ul></div>';
+            
+            document.getElementById('variablesSuggestions').innerHTML = html;
+        }
+        
+        // 新增客戶行
+        function addClientRow() {
+            const container = document.getElementById('clientTableContainer');
+            const newRow = document.createElement('div');
+            newRow.className = 'client-row';
+            newRow.innerHTML = `
+                <input type="text" placeholder="客戶名稱">
+                <input type="text" placeholder="聯絡地址">
+                <input type="number" placeholder="員工人數">
+                <button class="btn btn-secondary" onclick="removeClientRow(this)">刪除</button>
+            `;
+            container.appendChild(newRow);
+        }
+        
+        // 刪除客戶行
+        function removeClientRow(button) {
+            const rows = document.querySelectorAll('#clientTableContainer .client-row');
+            if (rows.length > 1) {
+                button.closest('.client-row').remove();
+            } else {
+                showStatus('至少需要保留一行資料', 'error');
+            }
+        }
+    </script>
+</body>
+</html>
