@@ -329,7 +329,7 @@ class NavigationManager {
             if (loaderElement) {
                 loaderElement.remove();
             }
-        }, 1000);
+        }, 100);
     }
 
     // 靜態方法，可在任何頁面調用
