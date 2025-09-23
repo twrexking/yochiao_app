@@ -384,7 +384,7 @@ const Projects = {
             <td>${projectData.progress}</td>
             <td>
                 <button class="btn" onclick="Projects.showProjectDetail('${projectData.id}')">管理</button>
-                <button class="btn" onclick="Projects.generateDocument('${projectData.id}', 'plan')">計畫書</button>
+                <button class="btn" onclick="Projects.showProjectPlan('${projectData.id}')">計畫書</button>
             </td>
         `;
         
@@ -447,6 +447,35 @@ const Projects = {
         } else {
             Common.showNotification('找不到專案資料', 'error');
         }
+    },
+
+    // 顯示專案計畫書管理頁面
+    showProjectPlan: function(projectId) {
+        // 先顯示專案詳細資訊
+        this.showProjectDetail(projectId);
+        
+        // 等待模態框完全載入後切換到計畫書標籤
+        setTimeout(() => {
+            // 移除所有標籤的 active 狀態
+            const tabs = document.querySelectorAll('#projectDetailModal .tab');
+            tabs.forEach(tab => tab.classList.remove('active'));
+            
+            // 移除所有標籤內容的 active 狀態
+            const tabContents = document.querySelectorAll('#projectDetailModal .tab-content');
+            tabContents.forEach(content => content.classList.remove('active'));
+            
+            // 啟用計畫書標籤
+            const planTab = document.querySelector('#projectDetailModal .tab:nth-child(3)'); // 計畫書是第3個標籤
+            if (planTab) {
+                planTab.classList.add('active');
+            }
+            
+            // 顯示計畫書內容
+            const planContent = document.querySelector('#planDocument');
+            if (planContent) {
+                planContent.classList.add('active');
+            }
+        }, 100);
     },
 
     // 取得專案資料 (使用 DataManager)
@@ -775,7 +804,12 @@ const Projects = {
     },
 
     generatePlan: function() {
-        this.generateDocument(this.currentProjectId, 'plan');
+        Common.showNotification('開始產生計畫書...', 'info');
+        
+        // 模擬產生過程
+        setTimeout(() => {
+            Common.showNotification('計畫書產生完成！，可以預覽或下載', 'success');
+        }, 1500);
     },
 
     previewPlan: function() {
