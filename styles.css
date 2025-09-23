@@ -153,6 +153,23 @@ body {
     background: #f9f9f9;
 }
 
+/* 表格中的按鈕樣式調整 */
+.table .btn {
+    padding: 6px 12px;
+    margin: 2px;
+    background: #f8f8f8;
+    border: 1px solid #ddd;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+    font-size: 12px;
+}
+
+.table .btn:hover {
+    background: #333;
+    color: white;
+    border-color: #333;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+}
+
 /* 導航元件 */
 .breadcrumb {
     padding: 10px 0;
@@ -262,6 +279,28 @@ body {
     padding-top: 20px;
     border-top: 1px solid #ccc;
     text-align: right;
+}
+
+/* 文件預覽模態框特殊樣式 */
+#documentPreviewModal .modal-content {
+    padding: 0;
+    max-width: none;
+    max-height: none;
+    overflow: visible;
+    border: 1px solid #333;
+}
+
+#documentPreviewModal .modal-header {
+    margin-bottom: 0;
+    padding-bottom: 0;
+    border-bottom: none;
+}
+
+#documentPreviewModal .modal-footer {
+    margin-top: 0;
+    padding-top: 0;
+    border-top: none;
+    text-align: left;
 }
 
 /* 工作流程步驟 */

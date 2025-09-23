@@ -195,6 +195,29 @@ class WordTemplateGenerator {
     }
 
     /**
+     * 生成 Word 文檔並回傳 Blob
+     * @param {Object} variables - 套版變數物件
+     * @param {Object} options - 選項設定
+     * @returns {Promise<Blob>} 生成的文檔 Blob
+     */
+    async generateDocumentBlob(variables = {}, options = {}) {
+        try {
+            const buffer = await this.generateDocument(variables, options);
+            
+            // 建立 Blob
+            const blob = new Blob([buffer], {
+                type: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
+            });
+            
+            console.log('文檔 Blob 生成成功');
+            return blob;
+        } catch (error) {
+            console.error('生成文檔 Blob 失敗:', error);
+            throw error;
+        }
+    }
+
+    /**
      * 預處理變數，確保格式正確
      * @param {Object} variables - 原始變數物件
      * @returns {Object} 處理後的變數物件

@@ -9,7 +9,8 @@ const Common = {
             'newClient': 'newClientModal',
             'addChemical': 'addChemicalModal',
             'projectDetail': 'projectDetailModal',
-            'quickReport': 'quickReportModal'
+            'quickReport': 'quickReportModal',
+            'documentPreview': 'documentPreviewModal'
         };
         
         const modalId = modals[modalType];

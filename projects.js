@@ -558,6 +558,71 @@ const Projects = {
         }
     },
 
+    // 預覽文件
+    previewDocument: async function(projectId, docType) {
+        const docTypes = {
+            'plan': '計畫書',
+            'quote': '報價單',
+            'report': '監測報告'
+        };
+        
+        try {
+            Common.showNotification(`正在準備${docTypes[docType]}預覽...`, 'info');
+            
+            // 取得專案和客戶資料
+            const projectData = DataManager.getProjectById(projectId);
+            if (!projectData) {
+                throw new Error('找不到專案資料');
+            }
+            
+            const clientData = DataManager.getClientById(projectData.clientId);
+            if (!clientData) {
+                throw new Error('找不到客戶資料');
+            }
+            
+            // 載入預設範本資料
+            const defaultDataResponse = await fetch('docx-template-default-data.json');
+            const defaultData = await defaultDataResponse.json();
+            
+            // 建立變數物件，攤平預設資料結構
+            const variables = this.buildTemplateVariables(projectData, clientData, defaultData.defaultVariables);
+            
+            // 初始化 Word 產生器
+            const generator = new WordTemplateGenerator();
+            
+            // 根據文件類型選擇樣板
+            const templateMap = {
+                'plan': 'my_template2.docx',
+                'quote': 'my_template2.docx',
+                'report': 'my_template2.docx'
+            };
+            
+            const templateName = templateMap[docType] || 'my_template2.docx';
+            
+            // 載入樣板並產生文件 Blob
+            await generator.loadTemplate(templateName);
+            const documentBlob = await generator.generateDocumentBlob(variables);
+            
+            // 顯示預覽模態框
+            Common.showModal('documentPreview');
+            
+            // 設定預覽標題
+            const title = `${docTypes[docType]}預覽 - ${projectData.projectName}`;
+            document.getElementById('documentPreviewTitle').textContent = title;
+            
+            // 預覽文件
+            await WordPreviewLib.previewDocument(documentBlob, 'documentPreviewContainer');
+            
+            Common.showNotification(`${docTypes[docType]}預覽載入完成！`, 'success');
+            return { success: true, blob: documentBlob };
+            
+        } catch (error) {
+            console.error(`預覽${docTypes[docType]}失敗:`, error);
+            Common.showNotification(`預覽${docTypes[docType]}失敗: ${error.message}`, 'error');
+            throw error;
+        }
+    },
+
     // 建立範本變數
     buildTemplateVariables: function(projectData, clientData, defaultVariables) {
         // 攤平預設資料結構
@@ -714,11 +779,11 @@ const Projects = {
     },
 
     previewPlan: function() {
-        Common.showNotification('計畫書預覽功能開發中...', 'info');
+        this.previewDocument(this.currentProjectId, 'plan');
     },
 
     downloadPlan: function() {
-        Common.showNotification('開始下載計畫書...', 'info');
+        this.generateDocument(this.currentProjectId, 'plan');
     },
 
     importLabData: function() {
